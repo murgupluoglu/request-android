@@ -27,7 +27,7 @@ interface CacheListener{
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <T> MutableLiveData<RESPONSE<T>>.request(viewModelScope : CoroutineScope, deferred: Deferred<*>, cacheListener: CacheListener? = null) {
+fun <T> MutableLiveData<RESPONSE<T>>.request(viewModelScope : CoroutineScope, suspendfun: suspend () -> T, cacheListener: CacheListener? = null) {
 
     viewModelScope.launch {
 
@@ -46,9 +46,9 @@ fun <T> MutableLiveData<RESPONSE<T>>.request(viewModelScope : CoroutineScope, de
 
         response.isFromCache = false
         try {
-            val result = deferred.await()
+            val result = suspendfun()
             response.status = STATUS_SUCCESS
-            response.responseObject = result as T
+            response.responseObject = result
         } catch (httpE: HttpException) {
             response.status = STATUS_ERROR
             response.errorMessage = httpE.message()
@@ -65,12 +65,12 @@ fun <T> MutableLiveData<RESPONSE<T>>.request(viewModelScope : CoroutineScope, de
     }
 }
 
-fun <T> MutableLiveData<RESPONSE<T>>.request(deferred: Deferred<*>, cacheListener: CacheListener? = null): Job {
+fun <T> MutableLiveData<RESPONSE<T>>.request(suspendfun: suspend () -> T, cacheListener: CacheListener? = null): Job {
 
     val job = Job()
     val scope = CoroutineScope(job + Dispatchers.Main)
 
-    request(scope, deferred, cacheListener)
+    request(scope, suspendfun, cacheListener)
 
     return job
 }

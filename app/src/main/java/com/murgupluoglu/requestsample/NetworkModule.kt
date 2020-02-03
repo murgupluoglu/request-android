@@ -1,6 +1,5 @@
 package com.murgupluoglu.requestsample
 
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -31,7 +30,6 @@ class NetworkModule{
 
             val request = original.newBuilder()
                 .header("Content-Type", "application/json")
-                .method(original.method(), original.body())
                 .build()
 
             chain.proceed(request)
@@ -39,7 +37,6 @@ class NetworkModule{
 
         val clt = httpClient.build()
         val retrofit = retrofit2.Retrofit.Builder()
-            .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .addConverterFactory(GsonConverterFactory.create())
             .baseUrl(BASE_URL)
             .client(clt)

@@ -12,6 +12,6 @@ import retrofit2.http.Query
 interface ServiceInterface {
 
     @GET("/")
-    fun getPeoples(@Query("results") size : Int): Deferred<PeopleResponse>
+    suspend fun getPeoples(@Query("results") size : Int): PeopleResponse
 
 }
