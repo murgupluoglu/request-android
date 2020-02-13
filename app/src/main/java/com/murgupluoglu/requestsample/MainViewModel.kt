@@ -1,14 +1,9 @@
 package com.murgupluoglu.requestsample
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.murgupluoglu.request.RESPONSE
 import com.murgupluoglu.request.request
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
 /**
  * Created by Mustafa Ürgüplüoğlu on 06.09.2019.

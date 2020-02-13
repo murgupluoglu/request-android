@@ -2,6 +2,7 @@ package com.murgupluoglu.request
 
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.*
+import okhttp3.ResponseBody
 import retrofit2.HttpException
 import java.net.UnknownHostException
 
@@ -18,6 +19,7 @@ data class RESPONSE<T>(
     var status: Int = STATUS_LOADING,
     var errorCode: Int = -1,
     var errorMessage: String = "",
+    var errorBody: ResponseBody? = null,
     var isFromCache: Boolean = false,
     var responseObject: T? = null
 )
@@ -53,6 +55,7 @@ fun <T> MutableLiveData<RESPONSE<T>>.request(viewModelScope : CoroutineScope, su
             response.status = STATUS_ERROR
             response.errorMessage = httpE.message()
             response.errorCode = httpE.code()
+            response.errorBody = httpE.response()?.errorBody()
         } catch (unknownHostE: UnknownHostException) {
             response.status = STATUS_ERROR
             response.errorMessage = unknownHostE.message.toString()

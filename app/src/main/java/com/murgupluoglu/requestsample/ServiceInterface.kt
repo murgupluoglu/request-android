@@ -1,8 +1,8 @@
 package com.murgupluoglu.requestsample
 
-import kotlinx.coroutines.Deferred
 import retrofit2.http.GET
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 /**
  * Created by Mustafa Ürgüplüoğlu on 06.09.2019.
@@ -13,5 +13,8 @@ interface ServiceInterface {
 
     @GET("/")
     suspend fun getPeoples(@Query("results") size : Int): PeopleResponse
+
+    @GET
+    suspend fun http400(@Url url : String = "https://httpstat.us/400"): PeopleResponse
 
 }

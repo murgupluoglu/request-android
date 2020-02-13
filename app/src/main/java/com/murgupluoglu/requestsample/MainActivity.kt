@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
                     textView?.text = "Loading"
                 }
                 STATUS_ERROR -> {
-                    Log.d(TAG, "Error")
+                    Log.e(TAG, "Error")
                     textView?.text = result.errorMessage
                 }
                 STATUS_SUCCESS -> {
