@@ -9,7 +9,7 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 3
+        versionCode 4
         versionName versionCode + ".0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -35,7 +35,7 @@ android {
 
 ext {
     coroutines = "1.2.2"
-    okhttpVersion = "3.12.1"
+    okhttpVersion = '4.4.0'
     retrofitVersion = '2.7.1'
 }
 

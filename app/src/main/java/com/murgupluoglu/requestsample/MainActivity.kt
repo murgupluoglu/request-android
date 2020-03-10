@@ -4,8 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import com.murgupluoglu.request.RESPONSE
+import androidx.lifecycle.ViewModelProvider
 import com.murgupluoglu.request.STATUS_ERROR
 import com.murgupluoglu.request.STATUS_LOADING
 import com.murgupluoglu.request.STATUS_SUCCESS
@@ -20,9 +19,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         //Use dependency injection in real apps
-        val viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+        val viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
-        viewModel.peoplesResponse.observe(this@MainActivity, Observer<RESPONSE<PeopleResponse>> { result ->
+        viewModel.peoplesResponse.observe(this@MainActivity, Observer { result ->
             when (result.status) {
                 STATUS_LOADING -> {
                     Log.d(TAG, "Loading")

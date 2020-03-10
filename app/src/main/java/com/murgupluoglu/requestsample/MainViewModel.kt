@@ -10,7 +10,7 @@ import com.murgupluoglu.request.request
  * Copyright © 2019 Mustafa Ürgüplüoğlu. All rights reserved.
  */
 
-class MainViewModel() : ViewModel() {
+class MainViewModel : ViewModel() {
 
     val peoplesResponse: MutableLiveData<RESPONSE<PeopleResponse>> = MutableLiveData()
 
