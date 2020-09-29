@@ -1,4 +1,4 @@
-# Request
+# Request [![](https://jitpack.io/v/murgupluoglu/request-android.svg)](https://jitpack.io/#murgupluoglu/request-android)
 
 ## Setup
 
