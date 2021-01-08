@@ -27,8 +27,9 @@ class MainActivity : AppCompatActivity() {
                     textView?.text = "Loading"
                 }
                 STATUS_ERROR -> {
-                    Log.e(TAG, "Error")
-                    textView?.text = result.errorMessage
+                    val errorText = "errorCode ${result.errorCode} errorMessage ${result.errorMessage}"
+                    Log.e(TAG, errorText)
+                    textView?.text = errorText
                 }
                 STATUS_SUCCESS -> {
                     Log.d(TAG, "Success ${result.responseObject}")
