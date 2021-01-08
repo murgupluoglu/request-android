@@ -46,11 +46,11 @@ fun <T> MutableLiveData<RESPONSE<T>>.request(viewModelScope : CoroutineScope, su
         }
 
 
-        response.isFromCache = false
         try {
             val result = suspendfun()
             response.status = STATUS_SUCCESS
             response.responseObject = result
+            response.isFromCache = false
         } catch (httpE: HttpException) {
             response.status = STATUS_ERROR
             response.errorMessage = httpE.message()

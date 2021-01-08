@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
  * Copyright © 2019 Mustafa Ürgüplüoğlu. All rights reserved.
  */
 
-class NetworkModule{
+class NetworkModule {
 
     companion object {
         var BASE_URL = "https://api.randomuser.me"
@@ -16,9 +16,9 @@ class NetworkModule{
 
     fun service(): ServiceInterface {
         val logging = HttpLoggingInterceptor()
-        if(BuildConfig.DEBUG){
+        if (BuildConfig.DEBUG) {
             logging.level = HttpLoggingInterceptor.Level.BODY
-        }else{
+        } else {
             logging.level = HttpLoggingInterceptor.Level.NONE
         }
 

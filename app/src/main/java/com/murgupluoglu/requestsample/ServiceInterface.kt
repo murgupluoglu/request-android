@@ -12,9 +12,9 @@ import retrofit2.http.Url
 interface ServiceInterface {
 
     @GET("/")
-    suspend fun getPeoples(@Query("results") size : Int): PeopleResponse
+    suspend fun getPeoples(@Query("results") size: Int): PeopleResponse
 
     @GET
-    suspend fun http400(@Url url : String = "https://httpstat.us/400"): PeopleResponse
+    suspend fun http400(@Url url: String = "https://httpstat.us/400"): PeopleResponse
 
 }

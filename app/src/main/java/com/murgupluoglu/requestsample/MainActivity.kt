@@ -1,9 +1,8 @@
 package com.murgupluoglu.requestsample
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.lifecycle.Observer
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.murgupluoglu.request.STATUS_ERROR
 import com.murgupluoglu.request.STATUS_LOADING
@@ -21,7 +20,7 @@ class MainActivity : AppCompatActivity() {
         //Use dependency injection in real apps
         val viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
-        viewModel.peoplesResponse.observe(this@MainActivity, Observer { result ->
+        viewModel.peoplesResponse.observe(this@MainActivity, { result ->
             when (result.status) {
                 STATUS_LOADING -> {
                     Log.d(TAG, "Loading")
@@ -33,6 +32,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 STATUS_SUCCESS -> {
                     Log.d(TAG, "Success ${result.responseObject}")
+                    Log.d(TAG, "isFromCache ${result.isFromCache}")
                     textView?.text = result.responseObject.toString()
                 }
             }
