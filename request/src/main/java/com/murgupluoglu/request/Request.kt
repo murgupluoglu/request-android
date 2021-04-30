@@ -24,12 +24,16 @@ data class RESPONSE<T>(
     var responseObject: T? = null
 )
 
-interface CacheListener{
-    fun getCachedResponse() : Any
+interface CacheListener {
+    fun getCachedResponse(): Any
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <T> MutableLiveData<RESPONSE<T>>.request(viewModelScope : CoroutineScope, suspendfun: suspend () -> T, cacheListener: CacheListener? = null) {
+fun <T> MutableLiveData<RESPONSE<T>>.request(
+    viewModelScope: CoroutineScope,
+    suspendfun: suspend () -> T,
+    cacheListener: CacheListener? = null
+) {
 
     viewModelScope.launch {
 
@@ -37,11 +41,11 @@ fun <T> MutableLiveData<RESPONSE<T>>.request(viewModelScope : CoroutineScope, su
         response.status = STATUS_LOADING
         this@request.value = response
 
-        if(cacheListener != null){
+        if (cacheListener != null) {
             val cacheValue = cacheListener.getCachedResponse()
             response.status = STATUS_SUCCESS
             response.isFromCache = true
-            response.responseObject =  cacheValue as T
+            response.responseObject = cacheValue as T
             this@request.value = response
         }
 
@@ -59,7 +63,7 @@ fun <T> MutableLiveData<RESPONSE<T>>.request(viewModelScope : CoroutineScope, su
         } catch (unknownHostE: UnknownHostException) {
             response.status = STATUS_ERROR
             response.errorMessage = unknownHostE.message.toString()
-        } catch (e : Exception){
+        } catch (e: Exception) {
             response.status = STATUS_ERROR
             response.errorMessage = e.message.toString()
         }
@@ -68,7 +72,10 @@ fun <T> MutableLiveData<RESPONSE<T>>.request(viewModelScope : CoroutineScope, su
     }
 }
 
-fun <T> MutableLiveData<RESPONSE<T>>.request(suspendfun: suspend () -> T, cacheListener: CacheListener? = null): Job {
+fun <T> MutableLiveData<RESPONSE<T>>.request(
+    suspendfun: suspend () -> T,
+    cacheListener: CacheListener? = null
+): Job {
 
     val job = Job()
     val scope = CoroutineScope(job + Dispatchers.Main)
