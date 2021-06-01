@@ -1,7 +1,10 @@
 package com.murgupluoglu.request
 
-import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import okhttp3.ResponseBody
 import retrofit2.HttpException
 import java.net.UnknownHostException
@@ -11,17 +14,17 @@ import java.net.UnknownHostException
  * Copyright © 2019 Mustafa Ürgüplüoğlu. All rights reserved.
  */
 
-const val STATUS_LOADING = 1
-const val STATUS_SUCCESS = 2
-const val STATUS_ERROR = 3
+sealed class Request<out T> {
+    class Success<T>(val data: T, val isFromCache: Boolean = false) : Request<T>()
+    class Error(val error: RequestError) : Request<Nothing>()
+    class Loading(val isLoading: Boolean) : Request<Nothing>()
+    object Empty : Request<Nothing>()
+}
 
-data class RESPONSE<T>(
-    var status: Int = STATUS_LOADING,
-    var errorCode: Int = -1,
-    var errorMessage: String = "",
-    var errorBody: ResponseBody? = null,
-    var isFromCache: Boolean = false,
-    var responseObject: T? = null
+data class RequestError(
+    var code: Int = -1,
+    var message: String = "",
+    var body: ResponseBody? = null
 )
 
 interface CacheListener {
@@ -29,58 +32,50 @@ interface CacheListener {
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <T> MutableLiveData<RESPONSE<T>>.request(
-    viewModelScope: CoroutineScope,
+fun <T> requestFlow(
+    suspendfun: suspend () -> T
+): Flow<Request<T>> {
+    return requestFlow(suspendfun, null)
+}
+
+@Suppress("UNCHECKED_CAST")
+fun <T> requestFlow(
     suspendfun: suspend () -> T,
     cacheListener: CacheListener? = null
-) {
-
-    viewModelScope.launch {
-
-        val response = RESPONSE<T>()
-        response.status = STATUS_LOADING
-        this@request.value = response
+): Flow<Request<T>> {
+    return flow {
 
         if (cacheListener != null) {
+            delay(100)
             val cacheValue = cacheListener.getCachedResponse()
-            response.status = STATUS_SUCCESS
-            response.isFromCache = true
-            response.responseObject = cacheValue as T
-            this@request.value = response
+            emit(Request.Success(cacheValue as T, isFromCache = true))
         }
-
 
         try {
             val result = suspendfun()
-            response.status = STATUS_SUCCESS
-            response.responseObject = result
-            response.isFromCache = false
+            emit(Request.Success(result))
         } catch (httpE: HttpException) {
-            response.status = STATUS_ERROR
-            response.errorMessage = httpE.message()
-            response.errorCode = httpE.code()
-            response.errorBody = httpE.response()?.errorBody()
+            val apiError = RequestError(
+                code = httpE.code(),
+                message = httpE.message()
+            )
+            emit(Request.Error(apiError))
         } catch (unknownHostE: UnknownHostException) {
-            response.status = STATUS_ERROR
-            response.errorMessage = unknownHostE.message.toString()
+            val apiError = RequestError(
+                code = -1,
+                message = unknownHostE.message.toString()
+            )
+            emit(Request.Error(apiError))
         } catch (e: Exception) {
-            response.status = STATUS_ERROR
-            response.errorMessage = e.message.toString()
+            val apiError = RequestError(
+                code = -2,
+                message = e.message.toString()
+            )
+            emit(Request.Error(apiError))
         }
-
-        this@request.value = response
+    }.onStart {
+        emit(Request.Loading(true))
+    }.onCompletion {
+        emit(Request.Loading(false))
     }
-}
-
-fun <T> MutableLiveData<RESPONSE<T>>.request(
-    suspendfun: suspend () -> T,
-    cacheListener: CacheListener? = null
-): Job {
-
-    val job = Job()
-    val scope = CoroutineScope(job + Dispatchers.Main)
-
-    request(scope, suspendfun, cacheListener)
-
-    return job
 }

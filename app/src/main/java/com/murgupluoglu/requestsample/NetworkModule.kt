@@ -42,6 +42,6 @@ class NetworkModule {
             .client(clt)
             .build()
 
-        return retrofit.create<ServiceInterface>(ServiceInterface::class.java)
+        return retrofit.create(ServiceInterface::class.java)
     }
 }

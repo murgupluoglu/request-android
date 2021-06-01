@@ -1,0 +1,66 @@
+{
+  "results": [
+    {
+      "gender": "female",
+      "name": {
+        "title": "Mrs",
+        "first": "Nicky",
+        "last": "Matthews"
+      },
+      "location": {
+        "street": {
+          "number": 4697,
+          "name": "New Road"
+        },
+        "city": "Liverpool",
+        "state": "Herefordshire",
+        "country": "United Kingdom",
+        "postcode": "EG3 6XD",
+        "coordinates": {
+          "latitude": "10.2409",
+          "longitude": "141.6597"
+        },
+        "timezone": {
+          "offset": "+11:00",
+          "description": "Magadan, Solomon Islands, New Caledonia"
+        }
+      },
+      "email": "nicky.matthews@example.com",
+      "login": {
+        "uuid": "b96f7787-4cfc-4987-bf56-9bd67528481b",
+        "username": "happymeercat733",
+        "password": "electron",
+        "salt": "V0YKIDn8",
+        "md5": "4cf9c35e2bf12a8fbef36409c4cca6e6",
+        "sha1": "e8894210562d4e4d1a62f46d80260409b98225f8",
+        "sha256": "ba852a46d692b1b02c14eb2f9235b0c69c1c398118a70fdaf1371a56666098ca"
+      },
+      "dob": {
+        "date": "1991-12-01T23:20:07.687Z",
+        "age": 30
+      },
+      "registered": {
+        "date": "2008-10-25T04:41:48.143Z",
+        "age": 13
+      },
+      "phone": "015394 47920",
+      "cell": "0769-819-480",
+      "id": {
+        "name": "NINO",
+        "value": "GB 81 44 93 R"
+      },
+      "picture": {
+        "large": "https://randomuser.me/api/portraits/women/43.jpg",
+        "medium": "https://randomuser.me/api/portraits/med/women/43.jpg",
+        "thumbnail": "https://randomuser.me/api/portraits/thumb/women/43.jpg"
+      },
+      "nat": "GB"
+    }
+  ],
+  "info": {
+    "seed": "seed_info",
+    "results": 1,
+    "page": 1,
+    "version": "1.3"
+  }
+}
