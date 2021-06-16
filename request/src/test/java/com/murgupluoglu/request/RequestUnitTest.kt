@@ -54,8 +54,8 @@ class RequestUnitTest {
         val expected = PeopleResponse(Info(1, 1, "seed_info", "2.5"))
 
         requestFlow(
-            suspendFun = { api.getPeoples(1) },
-            modifyFun = { response ->
+            get = { api.getPeoples(1) },
+            modify = { response ->
                 when (response) {
                     is Request.Success -> {
                         response.data.info?.version = "2.5"
@@ -95,8 +95,8 @@ class RequestUnitTest {
         mockWebServer.enqueueResponse("peoples-200.json", 400)
 
         requestFlow(
-            suspendFun = { api.getPeoples(1) },
-            modifyFun = { response ->
+            get = { api.getPeoples(1) },
+            modify = { response ->
                 when (response) {
                     is Request.Error -> {
                         response.error.code = 12345

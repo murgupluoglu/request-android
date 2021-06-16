@@ -49,8 +49,8 @@ fun <T> requestFlow(
 
 @Suppress("UNCHECKED_CAST")
 fun <T> requestFlow(
-    suspendFun: suspend () -> T,
-    modifyFun: ((Request<T>) -> Request<T>)? = null,
+    get: suspend () -> T,
+    modify: ((Request<T>) -> Request<T>)? = null,
     cacheListener: CacheListener? = null,
 ): Flow<Request<T>> {
     return flow {
@@ -62,9 +62,9 @@ fun <T> requestFlow(
         }
 
         try {
-            val result = suspendFun()
-            if (modifyFun != null) {
-                val modified = modifyFun(Request.Success(result))
+            val result = get()
+            if (modify != null) {
+                val modified = modify(Request.Success(result))
                 emit(modified)
             } else {
                 emit(Request.Success(result))
@@ -91,8 +91,8 @@ fun <T> requestFlow(
                 }
             }
             val apiError = RequestError(code = code, message = message)
-            if (modifyFun != null) {
-                val modified = modifyFun(Request.Error(apiError))
+            if (modify != null) {
+                val modified = modify(Request.Error(apiError))
                 emit(modified)
             } else {
                 emit(Request.Error(apiError))
