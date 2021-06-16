@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import okhttp3.ResponseBody
 import retrofit2.HttpException
+import java.net.SocketException
+import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 /**
@@ -27,21 +29,29 @@ data class RequestError(
     var body: ResponseBody? = null
 )
 
+enum class RequestErrors {
+    Unknown,
+    UnknownHostException,
+    SocketException,
+    SocketTimeoutException,
+}
+
 interface CacheListener {
     fun getCachedResponse(): Any
 }
 
 @Suppress("UNCHECKED_CAST")
 fun <T> requestFlow(
-    suspendfun: suspend () -> T
+    suspendFun: suspend () -> T
 ): Flow<Request<T>> {
-    return requestFlow(suspendfun, null)
+    return requestFlow(suspendFun, null, null)
 }
 
 @Suppress("UNCHECKED_CAST")
 fun <T> requestFlow(
-    suspendfun: suspend () -> T,
-    cacheListener: CacheListener? = null
+    suspendFun: suspend () -> T,
+    modifyFun: ((Request<T>) -> Request<T>)? = null,
+    cacheListener: CacheListener? = null,
 ): Flow<Request<T>> {
     return flow {
 
@@ -52,25 +62,89 @@ fun <T> requestFlow(
         }
 
         try {
-            val result = suspendfun()
-            emit(Request.Success(result))
-        } catch (httpE: HttpException) {
-            val apiError = RequestError(
-                code = httpE.code(),
-                message = httpE.message()
-            )
-            emit(Request.Error(apiError))
-        } catch (unknownHostE: UnknownHostException) {
-            val apiError = RequestError(
-                code = -1,
-                message = unknownHostE.message.toString()
-            )
-            emit(Request.Error(apiError))
+            val result = suspendFun()
+            if (modifyFun != null) {
+                val modified = modifyFun(Request.Success(result))
+                emit(modified)
+            } else {
+                emit(Request.Success(result))
+            }
         } catch (e: Exception) {
-            val apiError = RequestError(
-                code = -2,
-                message = e.message.toString()
-            )
+            var code = RequestErrors.Unknown.ordinal
+            var message = "Unknown Error"
+            when (e) {
+                is HttpException -> {
+                    code = e.code()
+                    message = e.message()
+                }
+                is UnknownHostException -> {
+                    code = RequestErrors.UnknownHostException.ordinal
+                    message = e.message.toString()
+                }
+                is SocketException -> {
+                    code = RequestErrors.SocketException.ordinal
+                    message = e.message.toString()
+                }
+                is SocketTimeoutException -> {
+                    code = RequestErrors.SocketTimeoutException.ordinal
+                    message = e.message.toString()
+                }
+            }
+            val apiError = RequestError(code = code, message = message)
+            if (modifyFun != null) {
+                val modified = modifyFun(Request.Error(apiError))
+                emit(modified)
+            } else {
+                emit(Request.Error(apiError))
+            }
+        }
+    }.onStart {
+        emit(Request.Loading(true))
+    }.onCompletion {
+        emit(Request.Loading(false))
+    }
+}
+
+@Suppress("UNCHECKED_CAST")
+fun <T, R> requestTransformFlow(
+    suspendFun: suspend () -> T,
+    transform: ((T) -> R),
+    cacheListener: CacheListener? = null,
+): Flow<Request<R>> {
+    return flow {
+
+        if (cacheListener != null) {
+            delay(100)
+            val cacheValue = cacheListener.getCachedResponse()
+            emit(Request.Success(cacheValue as R, isFromCache = true))
+        }
+
+        try {
+            val result = suspendFun()
+            val modified = transform(result)
+            emit(Request.Success(modified))
+        } catch (e: Exception) {
+            var code = RequestErrors.Unknown.ordinal
+            var message = "Unknown Error"
+            when (e) {
+                is HttpException -> {
+                    code = e.code()
+                    message = e.message()
+                }
+                is UnknownHostException -> {
+                    code = RequestErrors.UnknownHostException.ordinal
+                    message = e.message.toString()
+                }
+                is SocketException -> {
+                    code = RequestErrors.SocketException.ordinal
+                    message = e.message.toString()
+                }
+                is SocketTimeoutException -> {
+                    code = RequestErrors.SocketTimeoutException.ordinal
+                    message = e.message.toString()
+                }
+            }
+            val apiError = RequestError(code = code, message = message)
             emit(Request.Error(apiError))
         }
     }.onStart {

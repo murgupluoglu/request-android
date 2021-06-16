@@ -47,6 +47,92 @@ class RequestUnitTest {
     }
 
     @Test
+    fun `modify given http 200 response`() = runBlocking {
+
+        mockWebServer.enqueueResponse("peoples-200.json", 200)
+
+        val expected = PeopleResponse(Info(1, 1, "seed_info", "2.5"))
+
+        requestFlow(
+            suspendFun = { api.getPeoples(1) },
+            modifyFun = { response ->
+                when (response) {
+                    is Request.Success -> {
+                        response.data.info?.version = "2.5"
+                    }
+                    else -> {
+                    }
+                }
+                return@requestFlow response
+            },
+            cacheListener = null
+        ).collectIndexed { index, response ->
+            println(response)
+            when (index) {
+                0 -> {
+                    assert(response is Request.Loading)
+                    val loadingResponse = response as Request.Loading
+                    assertTrue(loadingResponse.isLoading)
+                }
+                1 -> {
+                    assert(response is Request.Success)
+                    val successResponse = response as Request.Success
+                    assertEquals(successResponse.data, expected)
+                }
+                2 -> {
+                    assert(response is Request.Loading)
+                    val loadingResponse = response as Request.Loading
+                    assertFalse(loadingResponse.isLoading)
+                }
+            }
+        }
+
+    }
+
+    @Test
+    fun `modify given http 400 response`() = runBlocking {
+
+        mockWebServer.enqueueResponse("peoples-200.json", 400)
+
+        requestFlow(
+            suspendFun = { api.getPeoples(1) },
+            modifyFun = { response ->
+                when (response) {
+                    is Request.Error -> {
+                        response.error.code = 12345
+                        response.error.message = "Modified message"
+                    }
+                    else -> {
+                    }
+                }
+                return@requestFlow response
+            },
+            cacheListener = null
+        ).collectIndexed { index, response ->
+            println(response)
+            when (index) {
+                0 -> {
+                    assert(response is Request.Loading)
+                    val loadingResponse = response as Request.Loading
+                    assertTrue(loadingResponse.isLoading)
+                }
+                1 -> {
+                    assert(response is Request.Error)
+                    val errorResponse = response as Request.Error
+                    assertEquals(errorResponse.error.code, 12345)
+                    assertEquals(errorResponse.error.message, "Modified message")
+                }
+                2 -> {
+                    assert(response is Request.Loading)
+                    val loadingResponse = response as Request.Loading
+                    assertFalse(loadingResponse.isLoading)
+                }
+            }
+        }
+
+    }
+
+    @Test
     fun `should given http 400 and error response`() = runBlocking {
 
         mockWebServer.enqueueResponse("peoples-200.json", 400)
@@ -94,7 +180,7 @@ class RequestUnitTest {
                 1 -> {
                     assert(response is Request.Error)
                     val errorResponse = response as Request.Error
-                    assertEquals(errorResponse.error.code, -2)
+                    assertEquals(errorResponse.error.code, RequestErrors.Unknown.ordinal)
                 }
                 2 -> {
                     assert(response is Request.Loading)
@@ -124,6 +210,10 @@ class RequestUnitTest {
                 1 -> {
                     assert(response is Request.Error)
                     val errorResponse = response as Request.Error
+                    assertEquals(
+                        errorResponse.error.code,
+                        RequestErrors.SocketTimeoutException.ordinal
+                    )
                     assertEquals(errorResponse.error.message, "timeout")
                 }
                 2 -> {
