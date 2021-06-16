@@ -22,7 +22,7 @@ class RequestTransformUnitTest {
 
 
             requestTransformFlow(
-                suspendFun = { api.getPeoples(1) },
+                get = { api.getPeoples(1) },
                 transform = { response ->
                     return@requestTransformFlow PeopleTransformedResponse(response.info!!.page + 1452)
                 },

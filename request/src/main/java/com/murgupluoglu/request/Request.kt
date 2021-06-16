@@ -42,9 +42,9 @@ interface CacheListener {
 
 @Suppress("UNCHECKED_CAST")
 fun <T> requestFlow(
-    suspendFun: suspend () -> T
+    get: suspend () -> T
 ): Flow<Request<T>> {
-    return requestFlow(suspendFun, null, null)
+    return requestFlow(get, null, null)
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -107,7 +107,7 @@ fun <T> requestFlow(
 
 @Suppress("UNCHECKED_CAST")
 fun <T, R> requestTransformFlow(
-    suspendFun: suspend () -> T,
+    get: suspend () -> T,
     transform: ((T) -> R),
     cacheListener: CacheListener? = null,
 ): Flow<Request<R>> {
@@ -120,7 +120,7 @@ fun <T, R> requestTransformFlow(
         }
 
         try {
-            val result = suspendFun()
+            val result = get()
             val modified = transform(result)
             emit(Request.Success(modified))
         } catch (e: Exception) {
