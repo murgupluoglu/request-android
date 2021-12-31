@@ -34,6 +34,7 @@ enum class RequestErrors {
     UnknownHostException,
     SocketException,
     SocketTimeoutException,
+    IllegalStateException,
 }
 
 interface CacheListener {
@@ -89,6 +90,10 @@ fun <T> requestFlow(
                     code = RequestErrors.SocketTimeoutException.ordinal
                     message = e.message.toString()
                 }
+                is IllegalStateException -> {
+                    code = RequestErrors.IllegalStateException.ordinal
+                    message = e.message.toString()
+                }
             }
             val apiError = RequestError(code = code, message = message)
             if (modify != null) {
@@ -141,6 +146,10 @@ fun <T, R> requestTransformFlow(
                 }
                 is SocketTimeoutException -> {
                     code = RequestErrors.SocketTimeoutException.ordinal
+                    message = e.message.toString()
+                }
+                is IllegalStateException -> {
+                    code = RequestErrors.IllegalStateException.ordinal
                     message = e.message.toString()
                 }
             }
